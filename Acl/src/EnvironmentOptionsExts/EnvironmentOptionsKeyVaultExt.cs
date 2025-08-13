@@ -9,14 +9,17 @@ public static class EnvironmentOptionsKeyVaultExt
         ArgumentNullException.ThrowIfNull(settings);
 
         var keyVaultName = settings.GetKeyVaultName();
-        switch (settings.Cloud)
+
+        // Map cloud to the known Key Vault endpoint suffix
+        var dnsSuffix = settings.Cloud switch
         {
-            case CloudType.AzureCloud:
-                return $"https://{keyVaultName}.vault.azure.net/";
-            case CloudType.AzureUSGovernment:
-                return $"https://{keyVaultName}.vault.usgovcloudapi.net/";
-            default:
-                throw new NotSupportedException($"Cloud type '{settings.Cloud}' is not supported for Key Vault URI generation.");
-        }
+            CloudType.AzureCloud => "vault.azure.net",
+            CloudType.AzureUSGovernment => "vault.usgovcloudapi.net",
+            CloudType.AzureChinaCloud => "vault.azure.cn",
+            CloudType.AzureGermanCloud => "vault.microsoftazure.de",
+            _ => throw new NotSupportedException($"Cloud type '{settings.Cloud}' is not supported for Key Vault URI generation.")
+        };
+
+        return $"https://{keyVaultName}.{dnsSuffix}/";
     }
 }
