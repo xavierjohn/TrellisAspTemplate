@@ -30,7 +30,7 @@ public class CosmosDbTests
     [InlineData(CloudType.AzureUSGovernment, "https://ppe-cosno-bwf.documents.azure.us:443/")]
     [InlineData(CloudType.AzureChinaCloud, "https://ppe-cosno-bwf.documents.azure.cn:443/")]
     [InlineData(CloudType.AzureGermanCloud, "https://ppe-cosno-bwf.documents.azure.com:443/")]
-    public void Will_get_blob_url_for_Cloud(string cloudType, string expectedUrl)
+    public void Will_get_url_for_Cloud(string cloudType, string expectedUrl)
     {
         // Arrange
         EnvironmentOptions environmentOptions = new()
