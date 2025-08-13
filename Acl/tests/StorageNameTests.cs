@@ -74,7 +74,7 @@ public class StorageNameTests
             Environment = EnvironmentType.Ppe,
             RegionShortName = "usw2",
             ServiceName = "bwf",
-            Cloud = CloudType.Fairfax
+            Cloud = CloudType.AzureUSGovernment
         };
 
         var expectedUrl = $"https://ppestbwf.blob.core.usgovcloudapi.net";

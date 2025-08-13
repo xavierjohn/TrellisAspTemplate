@@ -6,7 +6,7 @@ public static class EnvironmentOptionsCosmosDbExt
 
     public static string GetCosmosDbNameSharedUrl(this EnvironmentOptions settings)
     {
-        if (settings.Cloud == CloudType.Public)
+        if (settings.Cloud == CloudType.AzureCloud)
             return $"https://{GetCosmosDbNameShared(settings)}.documents.azure.com:443/";
 
         throw new NotSupportedException($"Cloud type '{settings.Cloud}' is not supported.");

@@ -11,9 +11,9 @@ public static class EnvironmentOptionsKeyVaultExt
         var keyVaultName = settings.GetKeyVaultName();
         switch (settings.Cloud)
         {
-            case CloudType.Public:
+            case CloudType.AzureCloud:
                 return $"https://{keyVaultName}.vault.azure.net/";
-            case CloudType.Fairfax:
+            case CloudType.AzureUSGovernment:
                 return $"https://{keyVaultName}.vault.usgovcloudapi.net/";
             default:
                 throw new NotSupportedException($"Cloud type '{settings.Cloud}' is not supported for Key Vault URI generation.");

@@ -36,8 +36,10 @@ public static partial class EnvironmentOptionsStorageExt
 
         return settings.Cloud switch
         {
-            CloudType.Public => $"https://{GetStorageNameShared(settings)}.blob.core.windows.net",
-            CloudType.Fairfax => $"https://{GetStorageNameShared(settings)}.blob.core.usgovcloudapi.net",
+            CloudType.AzureCloud => $"https://{GetStorageNameShared(settings)}.blob.core.windows.net",
+            CloudType.AzureUSGovernment => $"https://{GetStorageNameShared(settings)}.blob.core.usgovcloudapi.net",
+            CloudType.AzureChinaCloud => $"https://{GetStorageNameShared(settings)}.blob.core.chinacloud.cn",
+            CloudType.AzureGermanCloud => $"https://{GetStorageNameShared(settings)}.blob.core.cloudapi.de",
             _ => throw new NotSupportedException(
                 $"Cloud type '{settings.Cloud}' is not supported for Blob Storage URL generation.")
         };
