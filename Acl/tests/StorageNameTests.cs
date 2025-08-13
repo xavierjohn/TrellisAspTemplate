@@ -50,7 +50,7 @@ public class StorageNameTests
     [InlineData(CloudType.AzureUSGovernment, "https://ppestbwf.blob.core.usgovcloudapi.net")]
     [InlineData(CloudType.AzureChinaCloud, "https://ppestbwf.blob.core.chinacloud.cn")]
     [InlineData(CloudType.AzureGermanCloud, "https://ppestbwf.blob.core.cloudapi.de")]
-    public void Will_get_blob_url_for_USGovernment(string cloudType, string expectedUrl)
+    public void Will_get_blob_url_for_Cloud(string cloudType, string expectedUrl)
     {
         // Arrange
         EnvironmentOptions environmentOptions = new()
