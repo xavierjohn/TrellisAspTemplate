@@ -18,7 +18,7 @@ public class StorageNameTests
             ServiceName = "bwf"
         };
 
-        var expected = $"{env}stbwf";
+        var expected = $"{env}bwfst";
 
         // Act
         var actual = environmentOptions.GetStorageNameShared();
@@ -46,10 +46,10 @@ public class StorageNameTests
     }
 
     [Theory]
-    [InlineData(CloudType.AzureCloud, "https://ppestbwf.blob.core.windows.net")]
-    [InlineData(CloudType.AzureUSGovernment, "https://ppestbwf.blob.core.usgovcloudapi.net")]
-    [InlineData(CloudType.AzureChinaCloud, "https://ppestbwf.blob.core.chinacloud.cn")]
-    [InlineData(CloudType.AzureGermanCloud, "https://ppestbwf.blob.core.cloudapi.de")]
+    [InlineData(CloudType.AzureCloud, "https://ppebwfst.blob.core.windows.net")]
+    [InlineData(CloudType.AzureUSGovernment, "https://ppebwfst.blob.core.usgovcloudapi.net")]
+    [InlineData(CloudType.AzureChinaCloud, "https://ppebwfst.blob.core.chinacloud.cn")]
+    [InlineData(CloudType.AzureGermanCloud, "https://ppebwfst.blob.core.cloudapi.de")]
     public void Will_get_blob_url_for_Cloud(string cloudType, string expectedUrl)
     {
         // Arrange

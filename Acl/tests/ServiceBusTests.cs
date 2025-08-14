@@ -17,7 +17,7 @@ public class ServiceBusTests
             ServiceName = "bwf"
         };
 
-        var expected = $"{env}-sbns-bwf";
+        var expected = $"{env}-bwf-sbns";
 
         // Act
         var actual = environmentOptions.GetServiceBusName();
@@ -27,10 +27,10 @@ public class ServiceBusTests
     }
 
     [Theory]
-    [InlineData(CloudType.AzureCloud, "ppe-sbns-bwf.servicebus.windows.net")]
-    [InlineData(CloudType.AzureUSGovernment, "ppe-sbns-bwf.servicebus.usgovcloudapi.net")]
-    [InlineData(CloudType.AzureChinaCloud, "ppe-sbns-bwf.servicebus.chinacloudapi.cn")]
-    [InlineData(CloudType.AzureGermanCloud, "ppe-sbns-bwf.servicebus.cloudapi.de")]
+    [InlineData(CloudType.AzureCloud, "ppe-bwf-sbns.servicebus.windows.net")]
+    [InlineData(CloudType.AzureUSGovernment, "ppe-bwf-sbns.servicebus.usgovcloudapi.net")]
+    [InlineData(CloudType.AzureChinaCloud, "ppe-bwf-sbns.servicebus.chinacloudapi.cn")]
+    [InlineData(CloudType.AzureGermanCloud, "ppe-bwf-sbns.servicebus.cloudapi.de")]
     public void Will_get_namespace_for_Cloud(string cloudType, string expectedNamespace)
     {
         // Arrange
