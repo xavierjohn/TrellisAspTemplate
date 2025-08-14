@@ -16,7 +16,7 @@ public class CosmosDbTests
             ServiceName = "bwf"
         };
 
-        var expected = $"{env}-cosno-bwf";
+        var expected = $"{env}-bwf-cosno";
 
         // Act
         var actual = environmentOptions.GetCosmosDbNameShared();
@@ -26,10 +26,10 @@ public class CosmosDbTests
     }
 
     [Theory]
-    [InlineData(CloudType.AzureCloud, "https://ppe-cosno-bwf.documents.azure.com:443/")]
-    [InlineData(CloudType.AzureUSGovernment, "https://ppe-cosno-bwf.documents.azure.us:443/")]
-    [InlineData(CloudType.AzureChinaCloud, "https://ppe-cosno-bwf.documents.azure.cn:443/")]
-    [InlineData(CloudType.AzureGermanCloud, "https://ppe-cosno-bwf.documents.azure.com:443/")]
+    [InlineData(CloudType.AzureCloud, "https://ppe-bwf-cosno.documents.azure.com:443/")]
+    [InlineData(CloudType.AzureUSGovernment, "https://ppe-bwf-cosno.documents.azure.us:443/")]
+    [InlineData(CloudType.AzureChinaCloud, "https://ppe-bwf-cosno.documents.azure.cn:443/")]
+    [InlineData(CloudType.AzureGermanCloud, "https://ppe-bwf-cosno.documents.azure.com:443/")]
     public void Will_get_url_for_Cloud(string cloudType, string expectedUrl)
     {
         // Arrange
@@ -46,6 +46,5 @@ public class CosmosDbTests
 
         // Assert
         actualUrl.Should().Be(expectedUrl);
-
     }
 }
