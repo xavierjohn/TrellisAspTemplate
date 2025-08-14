@@ -6,9 +6,13 @@ public static class EnvironmentOptionsCosmosDbExt
 
     public static string GetCosmosDbNameSharedUrl(this EnvironmentOptions settings)
     {
-        if (settings.Cloud == CloudType.Public)
-            return $"https://{GetCosmosDbNameShared(settings)}.documents.azure.com:443/";
-
-        throw new NotSupportedException($"Cloud type '{settings.Cloud}' is not supported.");
+        return settings.Cloud switch
+        {
+            CloudType.AzureCloud => $"https://{GetCosmosDbNameShared(settings)}.documents.azure.com:443/",
+            CloudType.AzureUSGovernment => $"https://{GetCosmosDbNameShared(settings)}.documents.azure.us:443/",
+            CloudType.AzureChinaCloud => $"https://{GetCosmosDbNameShared(settings)}.documents.azure.cn:443/",
+            CloudType.AzureGermanCloud => $"https://{GetCosmosDbNameShared(settings)}.documents.azure.com:443/",
+            _ => throw new NotSupportedException($"Cloud type '{settings.Cloud}' is not supported.")
+        };
     }
 }

@@ -10,5 +10,5 @@ public class EnvironmentOptions
 
     public string Environment { get; set; } = EnvironmentType.Test;
 
-    public string Cloud { get; set; } = CloudType.Public;
+    public string Cloud { get; set; } = CloudType.AzureCloud;
 }

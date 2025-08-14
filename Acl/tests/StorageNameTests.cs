@@ -28,26 +28,6 @@ public class StorageNameTests
     }
 
     [Fact]
-    public void Will_get_blob_storage_url()
-    {
-        // Arrange
-        EnvironmentOptions environmentOptions = new()
-        {
-            Environment = EnvironmentType.Test,
-            RegionShortName = "usw2",
-            ServiceName = "bwf"
-        };
-
-        var expectedUrl = $"https://teststbwf.blob.core.windows.net";
-
-        // Act
-        var actualUrl = environmentOptions.GetBlobStorageSharedUrl();
-
-        // Assert
-        actualUrl.Should().Be(expectedUrl);
-    }
-
-    [Fact]
     public void Will_throw_exception_name_too_long()
     {
         // Arrange
@@ -65,8 +45,12 @@ public class StorageNameTests
         act.Should().Throw<ArgumentException>();
     }
 
-    [Fact]
-    public void Will_get_blob_url_for_fairfax()
+    [Theory]
+    [InlineData(CloudType.AzureCloud, "https://ppestbwf.blob.core.windows.net")]
+    [InlineData(CloudType.AzureUSGovernment, "https://ppestbwf.blob.core.usgovcloudapi.net")]
+    [InlineData(CloudType.AzureChinaCloud, "https://ppestbwf.blob.core.chinacloud.cn")]
+    [InlineData(CloudType.AzureGermanCloud, "https://ppestbwf.blob.core.cloudapi.de")]
+    public void Will_get_blob_url_for_Cloud(string cloudType, string expectedUrl)
     {
         // Arrange
         EnvironmentOptions environmentOptions = new()
@@ -74,10 +58,8 @@ public class StorageNameTests
             Environment = EnvironmentType.Ppe,
             RegionShortName = "usw2",
             ServiceName = "bwf",
-            Cloud = CloudType.Fairfax
+            Cloud = cloudType
         };
-
-        var expectedUrl = $"https://ppestbwf.blob.core.usgovcloudapi.net";
 
         // Act
         var actualUrl = environmentOptions.GetBlobStorageSharedUrl();
