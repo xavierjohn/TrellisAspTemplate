@@ -14,7 +14,7 @@ public static partial class EnvironmentOptionsStorageExt
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        var name = settings.GetResourceNameShared("st");
+        var name = settings.GetSharedResourceName("st");
         name = GetOnlyLettersAndNumbers().Replace(name, "");
 
         if (name.Length < 3 || name.Length > 24)

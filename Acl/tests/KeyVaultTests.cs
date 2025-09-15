@@ -16,7 +16,7 @@ public class KeyVaultTests
             ServiceName = "bwf"
         };
 
-        var expected = $"{env}-usw2-bwf-kv";
+        var expected = $"{env}-bwf-usw2-kv";
 
         // Act
         var actual = environmentOptions.GetKeyVaultName();
@@ -26,10 +26,10 @@ public class KeyVaultTests
     }
 
     [Theory]
-    [InlineData(CloudType.AzureCloud, "https://ppe-usw2-bwf-kv.vault.azure.net/")]
-    [InlineData(CloudType.AzureUSGovernment, "https://ppe-usw2-bwf-kv.vault.usgovcloudapi.net/")]
-    [InlineData(CloudType.AzureChinaCloud, "https://ppe-usw2-bwf-kv.vault.azure.cn/")]
-    [InlineData(CloudType.AzureGermanCloud, "https://ppe-usw2-bwf-kv.vault.microsoftazure.de/")]
+    [InlineData(CloudType.AzureCloud, "https://ppe-bwf-usw2-kv.vault.azure.net/")]
+    [InlineData(CloudType.AzureUSGovernment, "https://ppe-bwf-usw2-kv.vault.usgovcloudapi.net/")]
+    [InlineData(CloudType.AzureChinaCloud, "https://ppe-bwf-usw2-kv.vault.azure.cn/")]
+    [InlineData(CloudType.AzureGermanCloud, "https://ppe-bwf-usw2-kv.vault.microsoftazure.de/")]
     public void Will_get_keyvault_uri_for_Cloud(string cloudType, string expectedUri)
     {
         // Arrange

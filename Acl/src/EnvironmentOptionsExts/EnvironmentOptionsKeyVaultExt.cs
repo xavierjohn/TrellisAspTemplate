@@ -2,7 +2,7 @@
 
 public static class EnvironmentOptionsKeyVaultExt
 {
-    public static string GetKeyVaultName(this EnvironmentOptions settings) => settings.GetResourceName("kv");
+    public static string GetKeyVaultName(this EnvironmentOptions settings) => settings.GetRegionalResourceName("kv");
 
     public static string GetKeyVaultUri(this EnvironmentOptions settings)
     {
