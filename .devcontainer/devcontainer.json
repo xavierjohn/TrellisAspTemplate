@@ -26,20 +26,20 @@
   },
 
   "forwardPorts": [
-    5000,
-    5001,
+    5122,
+    7011,
     9090,
     9411
   ],
 
   "portsAttributes": {
-    "5000": {
+    "5122": {
       "label": "API (HTTP)",
-      "onAutoForward": "notify"
+      "onAutoForward": "openPreview"
     },
-    "5001": {
+    "7011": {
       "label": "API (HTTPS)",
-      "onAutoForward": "notify"
+      "onAutoForward": "silent"
     },
     "9090": {
       "label": "Prometheus",
