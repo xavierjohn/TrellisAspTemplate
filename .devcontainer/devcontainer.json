@@ -1,0 +1,55 @@
+{
+  "name": "Functional DDD ASP Template",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:1-10.0-bookworm",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-azuretools.vscode-docker",
+        "humao.rest-client",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "dotnet.defaultSolution": "FunctionalDddAspTemplate.sln"
+      }
+    }
+  },
+
+  "forwardPorts": [
+    5000,
+    5001,
+    9090,
+    9411
+  ],
+
+  "portsAttributes": {
+    "5000": {
+      "label": "API (HTTP)",
+      "onAutoForward": "notify"
+    },
+    "5001": {
+      "label": "API (HTTPS)",
+      "onAutoForward": "notify"
+    },
+    "9090": {
+      "label": "Prometheus",
+      "onAutoForward": "silent"
+    },
+    "9411": {
+      "label": "Zipkin",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "dotnet restore",
+
+  "remoteUser": "vscode"
+}
