@@ -1,12 +1,12 @@
 ﻿namespace BestWeatherForecast.Api;
 
+using System.Text;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Text;
 
 /// <summary>
 /// Configure the Swashbuckle options, which defines the document endpoints and high-level documentation (e.g. description)

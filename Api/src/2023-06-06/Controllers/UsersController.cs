@@ -44,7 +44,7 @@ public class UsersController : ControllerBase
     /// <returns></returns>
     [HttpDelete("{id}")]
     public ActionResult<Unit> Delete(string id) =>
-        UserId.TryCreate(id).Finally(
+        UserId.TryCreate(id).Match(
             ok => NoContent(),
             err => err.ToActionResult<Unit>(this));
 }

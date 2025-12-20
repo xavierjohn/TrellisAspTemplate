@@ -1,4 +1,5 @@
 ﻿namespace Application.Tests.WeatherForecast;
+
 using System;
 using System.Threading.Tasks;
 using BestWeatherForecast.Application.WeatherForcast;

@@ -1,4 +1,5 @@
 ﻿namespace AntiCorruptionLayer.Tests;
+
 using BestWeatherForecast.AntiCorruptionLayer;
 
 public class KeyVaultTests

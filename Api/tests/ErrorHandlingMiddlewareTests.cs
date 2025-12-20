@@ -1,8 +1,8 @@
 ﻿namespace Api.Tests;
 
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json;
 
 [Collection(TestWebApplicationFactoryCollectionFixture.Id)]
 public class ErrorHandlingMiddlewareTests

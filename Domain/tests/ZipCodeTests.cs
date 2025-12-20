@@ -13,8 +13,8 @@ public class ZipCodeTests
 
         result.IsFailure.Should().BeTrue();
         var error = (ValidationError)result.Error;
-        error.Errors[0].Details[0].Should().Be("'zip Code' must not be empty.");
-        error.Errors[0].Name.Should().Be("zipCode");
+        error.FieldErrors[0].Details[0].Should().Be("'zip Code' must not be empty.");
+        error.FieldErrors[0].FieldName.Should().Be("zipCode");
     }
 
     [Theory]
@@ -27,8 +27,8 @@ public class ZipCodeTests
 
         result.IsFailure.Should().BeTrue();
         var error = (ValidationError)result.Error;
-        error.Errors[0].Details[0].Should().Be("'zip Code' is not in the correct format.");
-        error.Errors[0].Name.Should().Be("zipCode");
+        error.FieldErrors[0].Details[0].Should().Be("'zip Code' is not in the correct format.");
+        error.FieldErrors[0].FieldName.Should().Be("zipCode");
     }
 
     [Theory]

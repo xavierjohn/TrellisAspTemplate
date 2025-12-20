@@ -1,7 +1,7 @@
 ﻿namespace Application.Tests;
 
-using Microsoft.Extensions.Hosting;
 using BestWeatherForecast.Application;
+using Microsoft.Extensions.Hosting;
 public class Startup
 {
     public static void ConfigureHost(IHostBuilder hostBuilder) =>
