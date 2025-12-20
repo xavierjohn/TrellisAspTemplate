@@ -11,7 +11,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 /// <summary>
 /// Configure the Swashbuckle options, which defines the document endpoints and high-level documentation (e.g. description)
 /// </summary>
-/// <remarks>This allows API versioning to define a Swagger/OpenAPI document per API version after the
+/// <remarks>This allows API versioning to define an OpenAPI document per API version after the
 /// <see cref="IApiVersionDescriptionProvider"/> service has been resolved from the service container.
 /// These documents are consumed by Scalar for API documentation.</remarks>
 public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
