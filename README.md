@@ -52,6 +52,12 @@ Here is a more elaborate sample code [BuberDinner](https://github.com/xavierjohn
 To get started with this template, All you need to do is download the repository to your local development environment, rename it to your project and use it. This template comes with all layers already implemented along with the Unit Tests in place.
 This is not a Visual Studio project template.
 
+### API Documentation
+
+The template uses [Scalar](https://github.com/scalar/scalar) for interactive API documentation. When running in development mode, you can access the API documentation at `/scalar` which provides a modern, developer-friendly interface for exploring and testing your API endpoints.
+
+The documentation is automatically generated from OpenAPI specifications and supports API versioning out of the box.
+
 ## Lets talk a little bit more about the layers implemented in the Template
 
 ### Domain Layer
