@@ -2,6 +2,7 @@
 using BestWeatherForecast.Api;
 using BestWeatherForecast.Api.Middleware;
 using BestWeatherForecast.Application;
+using Scalar.AspNetCore;
 using ServiceLevelIndicators;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,21 +18,18 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(
-        options =>
-        {
-            options.RoutePrefix = string.Empty; // make home page the swagger UI
-            var descriptions = app.DescribeApiVersions();
+    app.MapSwagger("/openapi/{documentName}.json");
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("Best Weather Forecast API");
+        var descriptions = app.DescribeApiVersions();
 
-            // build a swagger endpoint for each discovered API version
-            foreach (var description in descriptions)
-            {
-                var url = $"/swagger/{description.GroupName}/swagger.json";
-                var name = description.GroupName.ToUpperInvariant();
-                options.SwaggerEndpoint(url, name);
-            }
-        });
+        // Add all API version documents to Scalar
+        foreach (var description in descriptions)
+        {
+            options.AddDocument(description.GroupName, $"/openapi/{description.GroupName}.json");
+        }
+    });
 }
 
 app.UseHttpsRedirection();

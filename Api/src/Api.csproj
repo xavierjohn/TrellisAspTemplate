@@ -12,6 +12,7 @@
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="ServiceLevelIndicators.Asp.ApiVersioning" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
