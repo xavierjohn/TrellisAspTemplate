@@ -1,4 +1,5 @@
 ﻿namespace BestWeatherForecast.Domain;
+
 using FluentValidation;
 
 public class User : Aggregate<UserId>

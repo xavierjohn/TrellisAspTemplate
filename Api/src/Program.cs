@@ -1,7 +1,7 @@
-﻿using BestWeatherForecast.Api;
+﻿using BestWeatherForecast.AntiCorruptionLayer;
+using BestWeatherForecast.Api;
 using BestWeatherForecast.Api.Middleware;
 using BestWeatherForecast.Application;
-using BestWeatherForecast.AntiCorruptionLayer;
 using ServiceLevelIndicators;
 
 var builder = WebApplication.CreateBuilder(args);

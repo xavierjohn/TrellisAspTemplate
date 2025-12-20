@@ -1,4 +1,5 @@
 ﻿namespace BestWeatherForecast.AntiCorruptionLayer;
+
 using BestWeatherForecast.Application.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 

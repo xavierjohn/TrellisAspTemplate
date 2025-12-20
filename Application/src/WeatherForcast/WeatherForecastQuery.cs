@@ -1,4 +1,5 @@
 ﻿namespace BestWeatherForecast.Application.WeatherForcast;
+
 using BestWeatherForecast.Domain;
 using FluentValidation;
 using Mediator;

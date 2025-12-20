@@ -1,4 +1,5 @@
 ﻿namespace BestWeatherForecast.Application.WeatherForcast;
+
 using System.Threading.Tasks;
 using BestWeatherForecast.Application.Abstractions;
 using BestWeatherForecast.Domain;
