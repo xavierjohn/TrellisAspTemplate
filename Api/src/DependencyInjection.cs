@@ -23,6 +23,7 @@ internal static class DependencyInjection
         services.AddSwaggerGen(
             options =>
             {
+                options.OperationFilter<AddApiVersionMetadata>();
                 options.OperationFilter<AddTraceParentParameter>();
 
                 var fileName = typeof(Program).Assembly.GetName().Name + ".xml";
