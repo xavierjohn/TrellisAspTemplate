@@ -1,50 +1,28 @@
 name: Copilot Scaffold Project
-
 on:
   issues:
     types: [labeled]
-
 permissions:
   contents: write
   pull-requests: write
   issues: write
-
 jobs:
   scaffold:
     if: github.event.label.name == 'copilot-scaffold'
     runs-on: ubuntu-latest
-    
     steps:
       - name: Add Comment
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `?? **FunctionalDDD Clean Architecture Scaffolding Started!**
-              
-              I'm analyzing your project specification and will create a complete clean architecture solution.
-              
-              This will include:
-              - ? Domain layer with aggregates and value objects
-              - ? Application layer with CQRS (queries/commands)
-              - ? Anti-Corruption Layer (ACL) for infrastructure
-              - ? API layer with versioned controllers
-              - ? Comprehensive tests for all layers
-              - ? OpenTelemetry observability
-              - ? Swagger/OpenAPI documentation
-              
-              **Estimated time**: 2-5 minutes ??
-              
-              I'll create a pull request when complete. Please review and merge!
-              
-              ---
-              *Powered by FunctionalDDD Clean Architecture Agent* ??`
+              body: '?? **FunctionalDDD Clean Architecture Scaffolding Started!** - Copilot will now scaffold your project.'
             })
       
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -59,92 +37,62 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
       
-      - name: Read Project Spec
-        id: read-spec
+      - name: Read Spec
+        id: spec
         run: |
           if [ ! -f .github/project-spec.yml ]; then
-            echo "Project specification file not found"
+            echo "Project specification not found"
             exit 1
           fi
-          
-          PROJECT_NAME=$(yq '.project.name' .github/project-spec.yml)
-          NAMESPACE=$(yq '.project.namespace' .github/project-spec.yml)
-          DESCRIPTION=$(yq '.project.description' .github/project-spec.yml)
-          SPEC_JSON=$(yq -o=json '.' .github/project-spec.yml)
-          
-          echo "project-name=$PROJECT_NAME" >> $GITHUB_OUTPUT
-          echo "namespace=$NAMESPACE" >> $GITHUB_OUTPUT
-          echo "description=$DESCRIPTION" >> $GITHUB_OUTPUT
+          NAME=$(yq '.project.name' .github/project-spec.yml)
+          SPEC=$(yq -o=json '.' .github/project-spec.yml)
+          echo "project-name=$NAME" >> $GITHUB_OUTPUT
           echo "spec-json<<EOF" >> $GITHUB_OUTPUT
-          echo "$SPEC_JSON" >> $GITHUB_OUTPUT
+          echo "$SPEC" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          
-          echo "Project: $PROJECT_NAME"
-          echo "Namespace: $NAMESPACE"
       
       - name: Create Branch
         run: |
-          BRANCH_NAME="copilot-scaffold/${{ github.event.issue.number }}-${{ steps.read-spec.outputs.project-name }}"
-          git checkout -b "$BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          BRANCH="scaffold-${{ github.event.issue.number }}-${{ steps.spec.outputs.project-name }}"
+          git checkout -b "$BRANCH"
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
       
-      - name: Generate Project Structure
+      - name: Generate
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const spec = JSON.parse(`${{ steps.read-spec.outputs.spec-json }}`);
-            
-            const readmeContent = `# ${spec.project.name}
-
-${spec.project.description}
-
-## Architecture
-
-This project follows Clean Architecture with FunctionalDDD.
-
-## Getting Started
-
-\`\`\`bash
-dotnet restore
-dotnet test
-dotnet run --project Api/src
-\`\`\`
-
-Generated with FunctionalDDD Clean Architecture Agent.
-`;
-            
-            fs.writeFileSync('README.md', readmeContent);
-            console.log('Project structure generated');
-            
-      - name: Commit Changes
+            const spec = JSON.parse(`${{ steps.spec.outputs.spec-json }}`);
+            const content = `# ${spec.project.name}\n\n${spec.project.description}\n\nScaffolded by FunctionalDDD Agent.`;
+            fs.writeFileSync('README.md', content);
+            console.log('Generated project structure');
+      
+      - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "feat: scaffold ${{ steps.read-spec.outputs.project-name }} clean architecture project"
-          git push origin "$BRANCH_NAME"
+          git commit -m "feat: scaffold ${{ steps.spec.outputs.project-name }}"
+          git push origin "$BRANCH"
       
-      - name: Create Pull Request
+      - name: Create PR
         uses: actions/github-script@v7
         with:
           script: |
-            const spec = JSON.parse(`${{ steps.read-spec.outputs.spec-json }}`);
-            
+            const spec = JSON.parse(`${{ steps.spec.outputs.spec-json }}`);
             const { data: pr } = await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `Scaffold ${spec.project.name} - Clean Architecture`,
-              head: process.env.BRANCH_NAME,
+              title: `Scaffold ${spec.project.name}`,
+              head: process.env.BRANCH,
               base: 'main',
-              body: `Scaffolded ${spec.project.name} from issue #${{ github.event.issue.number }}`
+              body: `Scaffolded from issue #${{ github.event.issue.number }}`
             });
-            
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `? Scaffolding complete! See PR #${pr.number}`
+              body: `? Complete! See PR #${pr.number}`
             });
       
       - name: Handle Failure
@@ -152,9 +100,9 @@ Generated with FunctionalDDD Clean Architecture Agent.
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `? Scaffolding failed. Check the workflow logs for details.`
-            });
+              body: '? Scaffolding failed. Check workflow logs.'
+            })
