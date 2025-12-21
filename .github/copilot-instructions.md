@@ -554,12 +554,20 @@ public async Task<IActionResult> Create(
 
 **Required Files in API Project**:
 
-1. **launchSettings.json** - For VS Code debugging support:
+1. **launchSettings.json** - For VS Code and Visual Studio debugging support:
 
 ```json
 // Api/src/Properties/launchSettings.json
 {
   "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:5000",
+      "sslPort": 5001
+    }
+  },
   "profiles": {
     "http": {
       "commandName": "Project",
@@ -580,12 +588,20 @@ public async Task<IActionResult> Create(
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }
 ```
 
-2. **api.http** - For testing APIs directly in Visual Studio:
+2. **api.http** - For testing APIs directly in Visual Studio and VS Code:
 
 ```http
 # Api/src/api.http
