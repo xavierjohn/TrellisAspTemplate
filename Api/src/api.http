@@ -1,10 +1,32 @@
-﻿// Okay
-GET {{HostAddress}}/api/Users/xavier?api-version=2023-06-06
+﻿@HostAddress = https://localhost:7011
+
+###
+# Get Weather Forecast for Redmond, WA (98052)
+GET {{HostAddress}}/api/WeatherForecast?api-version=2023-06-06
 Accept: application/json
 
 ###
-// Create User
-// Okay
+# Get Weather Forecast for specific zip code (Dallas, TX - 75014)
+GET {{HostAddress}}/api/WeatherForecast/75014?api-version=2023-06-06
+Accept: application/json
+
+###
+# Get Weather Forecast for Redmond, WA
+GET {{HostAddress}}/api/WeatherForecast/98052?api-version=2023-06-06
+Accept: application/json
+
+###
+# Get Weather Forecast for invalid zip code (404 Not Found)
+GET {{HostAddress}}/api/WeatherForecast/00000?api-version=2023-06-06
+Accept: application/json
+
+###
+# Test error handling middleware
+GET {{HostAddress}}/api/WeatherForecast/Throw?api-version=2023-06-06
+Accept: application/json
+
+###
+# Register a new user
 POST {{HostAddress}}/api/Users?api-version=2023-06-06
 Content-Type: application/json
 
@@ -16,7 +38,12 @@ Content-Type: application/json
 }
 
 ###
-// Bad Request email
+# Get greeting for user
+GET {{HostAddress}}/api/Users/xavier?api-version=2023-06-06
+Accept: application/json
+
+###
+# Bad Request - invalid email
 POST {{HostAddress}}/api/Users?api-version=2023-06-06
 Content-Type: application/json
 
@@ -28,7 +55,7 @@ Content-Type: application/json
 }
 
 ###
-// Bad Request password
+# Bad Request - weak password
 POST {{HostAddress}}/api/Users?api-version=2023-06-06
 Content-Type: application/json
 
@@ -40,7 +67,7 @@ Content-Type: application/json
 }
 
 ###
-// Bad Request multiple fields
+# Bad Request - multiple validation errors
 POST {{HostAddress}}/api/Users?api-version=2023-06-06
 Content-Type: application/json
 
@@ -50,3 +77,8 @@ Content-Type: application/json
   "email": "xavier",
   "password": "Super!Complex6"
 }
+
+````````
+
+
+# Response

@@ -1,6 +1,7 @@
 ﻿namespace BestWeatherForecast.Api;
 
 using Azure.Core;
+using BestWeatherForecast.AntiCorruptionLayer;
 using BestWeatherForecast.Api.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,10 +14,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 internal static class DependencyInjection
 {
-    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    public static IServiceCollection AddPresentation(this IServiceCollection services, EnvironmentOptions environmentOptions)
     {
-        services.ConfigureOpenTelemetry();
-        services.ConfigureServiceLevelIndicators();
+        services.ConfigureOpenTelemetry(environmentOptions);
+        services.ConfigureServiceLevelIndicators(environmentOptions);
         services.AddProblemDetails();
         services.AddControllers();
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
@@ -40,10 +41,10 @@ internal static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection ConfigureOpenTelemetry(this IServiceCollection services)
+    private static IServiceCollection ConfigureOpenTelemetry(this IServiceCollection services, EnvironmentOptions environmentOptions)
     {
-        static void configureResource(ResourceBuilder r) => r.AddService(
-            serviceName: "BestWeatherForcastService",
+        void configureResource(ResourceBuilder r) => r.AddService(
+            serviceName: environmentOptions.ServiceName,
             serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown");
 
         services.AddOpenTelemetry()
@@ -52,7 +53,6 @@ internal static class DependencyInjection
             {
                 builder.AddAspNetCoreInstrumentation();
                 builder.AddMeter(
-                    ApiMeters.MeterName,
                     "Microsoft.AspNetCore.Hosting",
                     "Microsoft.AspNetCore.Server.Kestrel",
                     "System.Net.Http");
@@ -64,16 +64,14 @@ internal static class DependencyInjection
                 builder.AddOtlpExporter();
             });
 
-        services.AddSingleton<ApiMeters>();
         return services;
     }
 
-    private static IServiceCollection ConfigureServiceLevelIndicators(this IServiceCollection services)
+    private static IServiceCollection ConfigureServiceLevelIndicators(this IServiceCollection services, EnvironmentOptions environmentOptions)
     {
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<ServiceLevelIndicatorOptions>, ConfigureServiceLevelIndicatorOptions>());
         services.AddServiceLevelIndicator(options =>
         {
-            options.LocationId = ServiceLevelIndicator.CreateLocationId("public", AzureLocation.WestUS3.Name);
+            options.LocationId = ServiceLevelIndicator.CreateLocationId("public", environmentOptions.Region);
         })
         .AddMvc()
         .AddApiVersion();

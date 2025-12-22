@@ -7,7 +7,10 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7011;http://localhost:5122",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "EnvironmentOptions__Cloud": "AzureCloud",
+        "EnvironmentOptions__Region": "westus2",
+        "EnvironmentOptions__RegionShortName": "usw2"
       }
     },
     "http": {
@@ -16,7 +19,10 @@
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5122",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "EnvironmentOptions__Cloud": "AzureCloud",
+        "EnvironmentOptions__Region": "westus2",
+        "EnvironmentOptions__RegionShortName": "usw2"
       }
     },
     "codespaces": {
@@ -26,7 +32,10 @@
       "applicationUrl": "https://0.0.0.0:7011;http://0.0.0.0:5122",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://0.0.0.0:5122"
+        "ASPNETCORE_URLS": "http://0.0.0.0:5122",
+        "EnvironmentOptions__Cloud": "AzureCloud",
+        "EnvironmentOptions__Region": "westus2",
+        "EnvironmentOptions__RegionShortName": "usw2"
       }
     }
   }

@@ -6,12 +6,17 @@ using ServiceLevelIndicators;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load EnvironmentOptions early for use during setup
+Program.EnvironmentOptions = builder.Configuration
+    .GetSection(nameof(EnvironmentOptions))
+    .Get<EnvironmentOptions>() ?? new EnvironmentOptions();
+
 // Add services to the container.
 
 builder.Services
-    .AddPresentation()
+    .AddPresentation(Program.EnvironmentOptions)
     .AddApplication()
-    .AddAntiCorruptionLayer();
+    .AddAntiCorruptionLayer(Program.EnvironmentOptions);
 
 var app = builder.Build();
 
@@ -47,4 +52,5 @@ app.Run();
 /// </summary>
 public partial class Program
 {
+    internal static EnvironmentOptions EnvironmentOptions { get; set; } = new();
 }

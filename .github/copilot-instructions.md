@@ -53,11 +53,59 @@ https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 ---
 
+### **EnvironmentOptions Configuration (MANDATORY)**
+
+**Three-Tier Configuration Strategy:**
+
+1. **`appsettings.json`** - Service-level settings (ServiceName only)
+2. **`appsettings.{Environment}.json`** - Environment-specific (Environment: local, test, ppe, prod)
+3. **Environment Variables** - Deployment-specific (Cloud, Region, RegionShortName)
+
+**Example Configuration:**
+```json
+// appsettings.json
+{
+  "EnvironmentOptions": {
+    "ServiceName": "BWF"
+  }
+}
+
+// appsettings.Development.json
+{
+  "EnvironmentOptions": {
+    "Environment": "local",
+    "Region": "local",
+    "RegionShortName": "local",
+    "Cloud": "AzureCloud"
+  }
+}
+
+// Environment Variables (deployment time)
+EnvironmentOptions__Cloud=AzureCloud
+EnvironmentOptions__Region=westus2
+EnvironmentOptions__RegionShortName=usw2
+```
+
+**Why this matters:**
+- ✅ Multi-cloud support (Commercial, Government, China, Germany)
+- ✅ Multi-region BCDR deployments
+- ✅ Same Docker image across all environments
+- ✅ Convention-based Azure resource naming
+
+**See detailed guide**: [EnvironmentOptions Configuration](../docs/EnvironmentOptions.md)
+
+---
+
 ### **Required Files (MANDATORY)**
 
 **MUST create these files:**
-1. `Api/src/Properties/launchSettings.json` - VS Code/Visual Studio debugging
+1. `Api/src/Properties/launchSettings.json` - VS Code/Visual Studio debugging with EnvironmentOptions
 2. `Api/src/api.http` - API testing
+3. `Api/src/appsettings.json` - Base configuration (ServiceName)
+4. `Api/src/appsettings.Development.json` - Development environment settings
+5. `Api/src/appsettings.Test.json` - Test environment settings
+6. `Api/src/appsettings.Ppe.json` - Pre-production environment settings
+7. `Api/src/appsettings.Production.json` - Production environment settings
 
 **See file contents**: [Configuration Files](instructions/configuration-files.md)
 
@@ -73,8 +121,10 @@ Before generating code, verify:
 - [ ] Namespace uses underscores: `_2025_01_15`
 - [ ] Folder uses hyphens: `2025-01-15`
 - [ ] Route is simple: `[Route("api/[controller]")]`
-- [ ] Created `launchSettings.json` in `Api/src/Properties/`
+- [ ] Created `launchSettings.json` with EnvironmentOptions environment variables
 - [ ] Created `api.http` in `Api/src/`
+- [ ] Created all `appsettings.{Environment}.json` files
+- [ ] `EnvironmentOptions` loaded in `Program.cs` and passed to DI methods
 - [ ] Value Objects use `RequiredGuid` or `RequiredString` when possible
 - [ ] Commands/Queries use `InlineValidator`
 - [ ] **Tests created for Domain, Application, and API layers - WITH ACTUAL TEST CODE, NOT EMPTY!**
@@ -90,6 +140,9 @@ Before generating code, verify:
 - [Repository Setup](instructions/repository-setup.md) - .gitignore, cleaning up tracked binaries
 - [Configuration Files](instructions/configuration-files.md) - Required files and settings
 - [Infrastructure Setup](instructions/infrastructure-setup.md) - **DependencyInjection, Program.cs, API versioning, OpenTelemetry, SLI**
+- [EnvironmentOptions Guide](../docs/EnvironmentOptions.md) - **Multi-cloud, multi-region configuration**
+- [Environment Configuration Examples](../docs/EnvironmentConfiguration-Examples.md) - **Deployment examples**
+- [EnvironmentOptions Quick Reference](../docs/EnvironmentOptions-QuickReference.md) - **Quick lookup**
 - [FunctionalDDD API Reference](instructions/functionalddd-api-reference.md) - **Library API usage guide**
 
 ### **Architecture Patterns**
@@ -115,15 +168,28 @@ ProjectName/
 │   ├── src/              # Commands, Queries, Abstractions
 │   └── tests/            # Handler tests + Mock services
 ├── Acl/
-│   ├── src/              # Repositories, External services
+│   ├── src/
+│   │   ├── EnvironmentOptions.cs
+│   │   ├── EnvironmentOptionsExts/  # Cloud-aware resource naming
+│   │   ├── Repositories/
+│   │   └── Services/
 │   └── tests/            # Integration tests
 ├── Api/
 │   ├── src/
 │   │   ├── 2025-01-15/   # Versioned controllers & models
 │   │   ├── Properties/launchSettings.json
 │   │   ├── api.http
+│   │   ├── appsettings.json
+│   │   ├── appsettings.Development.json
+│   │   ├── appsettings.Test.json
+│   │   ├── appsettings.Ppe.json
+│   │   ├── appsettings.Production.json
 │   │   └── Program.cs
 │   └── tests/            # API integration tests
+├── docs/
+│   ├── EnvironmentOptions.md
+│   ├── EnvironmentConfiguration-Examples.md
+│   └── EnvironmentOptions-QuickReference.md
 ├── build/
 │   └── test.props
 ├── Directory.Build.props
@@ -148,6 +214,8 @@ ProjectName/
 - **FluentValidation** for validation
 - **Mapster** for object mapping
 - **Asp.Versioning** for API versioning
+- **OpenTelemetry** for observability
+- **ServiceLevelIndicators** for SLI/SLO tracking
 - **xUnit v3** for testing (NOT v2!)
 - **FluentAssertions** for test assertions
 
@@ -155,6 +223,7 @@ ProjectName/
 - Custom Aggregate/RequiredGuid/RequiredString implementations
 - Custom Result/Error types
 - xUnit v2
+- Hardcoded cloud types or regions in configuration files
 
 **📚 For FunctionalDDD API documentation and examples:**
 - Repository: https://github.com/xavierjohn/FunctionalDDD
@@ -163,6 +232,100 @@ ProjectName/
 ---
 
 ## 🚀 Quick Start Templates
+
+### **Program.cs with EnvironmentOptions**
+```csharp
+using ProjectName.AntiCorruptionLayer;
+using ProjectName.Api;
+using ProjectName.Application;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Load EnvironmentOptions early for use during setup
+Program.EnvironmentOptions = builder.Configuration
+    .GetSection(nameof(EnvironmentOptions))
+    .Get<EnvironmentOptions>() ?? new EnvironmentOptions();
+
+// Add services to the container
+builder.Services
+    .AddPresentation(Program.EnvironmentOptions)
+    .AddApplication()
+    .AddAntiCorruptionLayer(Program.EnvironmentOptions);
+
+var app = builder.Build();
+
+// Configure middleware...
+app.Run();
+
+public partial class Program
+{
+    internal static EnvironmentOptions EnvironmentOptions { get; set; } = new();
+}
+```
+
+### **DependencyInjection with EnvironmentOptions**
+```csharp
+// Api/src/DependencyInjection.cs
+public static IServiceCollection AddPresentation(
+    this IServiceCollection services, 
+    EnvironmentOptions environmentOptions)
+{
+    services.ConfigureOpenTelemetry(environmentOptions);
+    services.ConfigureServiceLevelIndicators(environmentOptions);
+    // ... other services
+    return services;
+}
+
+private static IServiceCollection ConfigureOpenTelemetry(
+    this IServiceCollection services, 
+    EnvironmentOptions environmentOptions)
+{
+    void configureResource(ResourceBuilder r) => r.AddService(
+        serviceName: environmentOptions.ServiceName,
+        serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown");
+    
+    services.AddOpenTelemetry()
+        .ConfigureResource(configureResource)
+        // ... configure metrics and tracing
+    return services;
+}
+```
+
+### **ACL DependencyInjection**
+```csharp
+// Acl/src/DependencyInjection.cs
+public static IServiceCollection AddAntiCorruptionLayer(
+    this IServiceCollection services, 
+    EnvironmentOptions environmentOptions)
+{
+    services.AddSingleton(Options.Create(environmentOptions));
+    // ... register repositories and services
+    return services;
+}
+```
+
+### **Using EnvironmentOptions in Services**
+```csharp
+public class StorageService
+{
+    private readonly EnvironmentOptions _options;
+
+    public StorageService(IOptions<EnvironmentOptions> options)
+    {
+        _options = options.Value;
+    }
+
+    public string GetStorageUrl()
+    {
+        // Extension method generates cloud-aware URL
+        return _options.GetBlobStorageSharedUrl();
+        // Returns:
+        // - AzureCloud: https://prodappst.blob.core.windows.net
+        // - AzureUSGovernment: https://prodappst.blob.core.usgovcloudapi.net
+        // - AzureChinaCloud: https://prodappst.blob.core.chinacloud.cn
+    }
+}
+```
 
 ### **Controller Method (Railway-Oriented)**
 ```csharp
@@ -219,6 +382,40 @@ public class CreateOrderCommandHandler : ICommandHandler<CreateOrderCommand, Res
             .TapAsync(order => _repository.AddAsync(order, ct))
             .TapAsync(_ => _repository.SaveChangesAsync(ct));
 }
+```
+
+---
+
+## 🌍 Multi-Cloud & Multi-Region Support
+
+### **Supported Azure Clouds**
+- **AzureCloud** - Commercial/Public cloud
+- **AzureUSGovernment** - US Government cloud
+- **AzureChinaCloud** - China cloud (21Vianet)
+- **AzureGermanCloud** - Germany cloud
+
+### **Resource Naming Convention**
+- **Regional**: `{environment}-{servicename}-{regionshortname}-{resourcetype}`
+  - Example: `prod-bwf-usw2-app` (App Service in West US 2)
+- **Shared**: `{environment}-{servicename}-{resourcetype}`
+  - Example: `prodbwfst` (Storage Account, cloud-specific endpoints)
+
+### **Deployment Configuration**
+```bash
+# Commercial Cloud - West US 2
+EnvironmentOptions__Cloud=AzureCloud
+EnvironmentOptions__Region=westus2
+EnvironmentOptions__RegionShortName=usw2
+
+# Government Cloud - Virginia
+EnvironmentOptions__Cloud=AzureUSGovernment
+EnvironmentOptions__Region=usgovvirginia
+EnvironmentOptions__RegionShortName=usgv
+
+# China Cloud - East 2
+EnvironmentOptions__Cloud=AzureChinaCloud
+EnvironmentOptions__Region=chinaeast2
+EnvironmentOptions__RegionShortName=cnea2
 ```
 
 ---
