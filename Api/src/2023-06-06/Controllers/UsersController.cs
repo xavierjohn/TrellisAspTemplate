@@ -5,7 +5,6 @@ using BestWeatherForecast.Api._2023_06_06.Models;
 using BestWeatherForecast.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Trellis.Asp;
-using Trellis.Primitives;
 
 
 /// <summary>
@@ -25,10 +24,7 @@ public class UsersController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     public ActionResult<User> RegisterUser([FromBody] RegisterUserRequest request) =>
-        FirstName.TryCreate(request.FirstName)
-        .Combine(LastName.TryCreate(request.LastName))
-        .Combine(EmailAddress.TryCreate(request.Email))
-        .Bind((firstName, lastName, email) => Domain.User.TryCreate(firstName, lastName, email, request.Password))
+        Domain.User.TryCreate(request.FirstName, request.LastName, request.Email, request.Password)
         .ToActionResult(this);
 
     /// <summary>
