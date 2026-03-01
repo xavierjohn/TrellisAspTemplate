@@ -1,6 +1,8 @@
 ﻿namespace BestWeatherForecast.Domain;
 
 using FluentValidation;
+using Trellis.FluentValidation;
+using Trellis.Primitives;
 
 public class User : Aggregate<UserId>
 {
@@ -17,7 +19,7 @@ public class User : Aggregate<UserId>
     }
 
     private User(FirstName firstName, LastName lastName, EmailAddress email, string password)
-        : base(UserId.NewUnique())
+        : base(UserId.NewUniqueV4())
     {
         FirstName = firstName;
         LastName = lastName;

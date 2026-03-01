@@ -1,5 +1,5 @@
 ﻿namespace BestWeatherForecast.Domain;
 
-public partial class UserId : RequiredGuid
+public partial class UserId : RequiredGuid<UserId>
 {
 }

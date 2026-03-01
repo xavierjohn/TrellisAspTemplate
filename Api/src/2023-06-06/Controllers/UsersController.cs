@@ -4,6 +4,8 @@ using Asp.Versioning;
 using BestWeatherForecast.Api._2023_06_06.Models;
 using BestWeatherForecast.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Trellis.Asp;
+using Trellis.Primitives;
 
 
 /// <summary>

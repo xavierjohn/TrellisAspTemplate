@@ -1,14 +1,16 @@
 ﻿namespace BestWeatherForecast.Domain;
 
 using FluentValidation;
+using Trellis.FluentValidation;
 
-public class ZipCode : ScalarValueObject<string>
+public class ZipCode : ScalarValueObject<ZipCode, string>,
+    IScalarValue<ZipCode, string>
 {
     private ZipCode(string value) : base(value)
     {
     }
 
-    public static Result<ZipCode> TryCreate(string value)
+    public static Result<ZipCode> TryCreate(string value, string? fieldName = null)
     {
         var zipCode = new ZipCode(value);
         return s_validation.ValidateToResult(zipCode);

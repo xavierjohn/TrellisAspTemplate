@@ -27,7 +27,8 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
-    <Using Include="FunctionalDdd" />
+    <Using Include="Trellis" />
+    <PackageReference Include="Trellis.Analyzers" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(IsTestProject)' == 'false' ">

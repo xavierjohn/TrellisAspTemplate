@@ -11,10 +11,11 @@ public class ZipCodeTests
     {
         var result = ZipCode.TryCreate(zip!);
 
-        result.IsFailure.Should().BeTrue();
-        var error = (ValidationError)result.Error;
-        error.FieldErrors[0].Details[0].Should().Be("'zip Code' must not be empty.");
-        error.FieldErrors[0].FieldName.Should().Be("zipCode");
+        var (isSuccess, _, error) = result;
+        isSuccess.Should().BeFalse();
+        var validationError = error.Should().BeOfType<ValidationError>().Subject;
+        validationError.FieldErrors[0].Details[0].Should().Be("'zip Code' must not be empty.");
+        validationError.FieldErrors[0].FieldName.Should().Be("zipCode");
     }
 
     [Theory]
@@ -25,10 +26,11 @@ public class ZipCodeTests
     {
         var result = ZipCode.TryCreate(zip);
 
-        result.IsFailure.Should().BeTrue();
-        var error = (ValidationError)result.Error;
-        error.FieldErrors[0].Details[0].Should().Be("'zip Code' is not in the correct format.");
-        error.FieldErrors[0].FieldName.Should().Be("zipCode");
+        var (isSuccess, _, error) = result;
+        isSuccess.Should().BeFalse();
+        var validationError = error.Should().BeOfType<ValidationError>().Subject;
+        validationError.FieldErrors[0].Details[0].Should().Be("'zip Code' is not in the correct format.");
+        validationError.FieldErrors[0].FieldName.Should().Be("zipCode");
     }
 
     [Theory]

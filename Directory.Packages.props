@@ -1,19 +1,13 @@
 <Project>
   <PropertyGroup>
-    <FunctionalDddVersion>3.0.0-alpha.3</FunctionalDddVersion>
+    <TrellisVersion>3.0.0-alpha.92</TrellisVersion>
   </PropertyGroup>
   <!-- Runtime -->
   <ItemGroup>
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
     <PackageVersion Include="Azure.Core" Version="1.50.0" />
     <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.1.1" />
-    <PackageVersion Include="FluentValidation" Version="11.11.0" />
-    <PackageVersion Include="FunctionalDdd.Asp" Version="$(FunctionalDddVersion)" />
-    <PackageVersion Include="FunctionalDdd.CommonValueObjectGenerator" Version="$(FunctionalDddVersion)" />
-    <PackageVersion Include="FunctionalDdd.CommonValueObjects" Version="$(FunctionalDddVersion)" />
-    <PackageVersion Include="FunctionalDdd.DomainDrivenDesign" Version="$(FunctionalDddVersion)" />
-    <PackageVersion Include="FunctionalDdd.FluentValidation" Version="$(FunctionalDddVersion)" />
-    <PackageVersion Include="FunctionalDdd.RailwayOrientedProgramming" Version="$(FunctionalDddVersion)" />
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="MartinCostello.Logging.XUnit.v3" Version="0.7.0" />
     <PackageVersion Include="Mediator.Abstractions" Version="3.0.1" />
@@ -24,21 +18,28 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="10.0.1" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="2.3.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.4.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0" />
     <PackageVersion Include="ServiceLevelIndicators.Asp.ApiVersioning" Version="8.0.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.1" />
     <PackageVersion Include="System.Text.Json" Version="10.0.1" />
+    <PackageVersion Include="Trellis.Analyzers" Version="$(TrellisVersion)" />
+    <PackageVersion Include="Trellis.Asp" Version="$(TrellisVersion)" />
+    <PackageVersion Include="Trellis.DomainDrivenDesign" Version="$(TrellisVersion)" />
+    <PackageVersion Include="Trellis.FluentValidation" Version="$(TrellisVersion)" />
+    <PackageVersion Include="Trellis.Primitives" Version="$(TrellisVersion)" />
+    <PackageVersion Include="Trellis.Primitives.Generator" Version="$(TrellisVersion)" />
+    <PackageVersion Include="Trellis.Results" Version="$(TrellisVersion)" />
+    <PackageVersion Include="Trellis.Testing" Version="$(TrellisVersion)" />
   </ItemGroup>
   <!-- Test -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="FluentAssertions" Version="7.2.0" />
-    <PackageVersion Include="xunit.v3" Version="3.2.1" />
-    <PackageVersion Include="Xunit.DependencyInjection" Version="11.1.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.1" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.0.6" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="1.9.1" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="Xunit.DependencyInjection" Version="11.1.1" />
   </ItemGroup>
 </Project>
