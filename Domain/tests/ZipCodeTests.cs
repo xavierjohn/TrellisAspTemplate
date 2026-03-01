@@ -11,9 +11,9 @@ public class ZipCodeTests
     {
         var result = ZipCode.TryCreate(zip!);
 
-        var (isSuccess, _, error) = result;
-        isSuccess.Should().BeFalse();
-        var validationError = error.Should().BeOfType<ValidationError>().Subject;
+        result.Should().BeFailure();
+        var validationError = result.Should().BeFailure()
+            .Which.Should().BeOfType<ValidationError>().Subject;
         validationError.FieldErrors[0].Details[0].Should().Be("'zip Code' must not be empty.");
         validationError.FieldErrors[0].FieldName.Should().Be("zipCode");
     }
@@ -26,9 +26,9 @@ public class ZipCodeTests
     {
         var result = ZipCode.TryCreate(zip);
 
-        var (isSuccess, _, error) = result;
-        isSuccess.Should().BeFalse();
-        var validationError = error.Should().BeOfType<ValidationError>().Subject;
+        result.Should().BeFailure();
+        var validationError = result.Should().BeFailure()
+            .Which.Should().BeOfType<ValidationError>().Subject;
         validationError.FieldErrors[0].Details[0].Should().Be("'zip Code' is not in the correct format.");
         validationError.FieldErrors[0].FieldName.Should().Be("zipCode");
     }
@@ -39,6 +39,6 @@ public class ZipCodeTests
     {
         var result = ZipCode.TryCreate(zip);
 
-        result.IsSuccess.Should().BeTrue();
+        result.Should().BeSuccess();
     }
 }

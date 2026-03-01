@@ -3,6 +3,7 @@ using BestWeatherForecast.Api;
 using BestWeatherForecast.Api.Middleware;
 using BestWeatherForecast.Application;
 using ServiceLevelIndicators;
+using Trellis.Asp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseScalarValueValidation();
 app.UseServiceLevelIndicator();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.MapControllers();

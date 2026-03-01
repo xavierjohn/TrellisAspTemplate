@@ -10,6 +10,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using ServiceLevelIndicators;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Trellis.Asp;
 
 internal static class DependencyInjection
 {
@@ -18,7 +19,7 @@ internal static class DependencyInjection
         services.ConfigureOpenTelemetry();
         services.ConfigureServiceLevelIndicators();
         services.AddProblemDetails();
-        services.AddControllers();
+        services.AddControllers().AddScalarValueValidation();
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
         services.AddSwaggerGen(
             options =>
@@ -61,6 +62,8 @@ internal static class DependencyInjection
             .WithTracing(builder =>
             {
                 builder.AddAspNetCoreInstrumentation();
+                builder.AddResultsInstrumentation();
+                builder.AddPrimitiveValueObjectInstrumentation();
                 builder.AddOtlpExporter();
             });
 
