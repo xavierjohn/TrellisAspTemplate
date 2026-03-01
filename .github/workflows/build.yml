@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '10.0.x'
             
     - uses: actions/checkout@v4
       with:
@@ -32,4 +32,4 @@ jobs:
       run: dotnet build --no-restore -c Release
 
     - name: Test
-      run: dotnet test --no-build  -l "console;verbosity=normal" -c Release --filter "Category!=AntiCorruptionLayerTests"
+      run: dotnet test --no-build -c Release --filter "Category!=AntiCorruptionLayerTests"
