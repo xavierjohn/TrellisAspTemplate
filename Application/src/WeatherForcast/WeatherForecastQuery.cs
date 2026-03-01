@@ -3,6 +3,7 @@
 using BestWeatherForecast.Domain;
 using FluentValidation;
 using Mediator;
+using Trellis.FluentValidation;
 
 public class WeatherForecastQuery : IQuery<Result<WeatherForecast>>
 {

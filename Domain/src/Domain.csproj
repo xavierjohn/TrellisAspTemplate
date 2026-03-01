@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <PackageReference Include="FunctionalDdd.CommonValueObjectGenerator" />
-    <PackageReference Include="FunctionalDdd.CommonValueObjects" />
-    <PackageReference Include="FunctionalDDD.DomainDrivenDesign" />
-    <PackageReference Include="FunctionalDDD.FluentValidation" />
-    <PackageReference Include="FunctionalDDD.RailwayOrientedProgramming" />
+    <PackageReference Include="Trellis.DomainDrivenDesign" />
+    <PackageReference Include="Trellis.FluentValidation" />
+    <PackageReference Include="Trellis.Primitives" />
+    <PackageReference Include="Trellis.Primitives.Generator" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="Trellis.Results" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@ using Mapster;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using ServiceLevelIndicators;
+using Trellis.Asp;
 
 /// <summary>
 /// Weather forecast controller.

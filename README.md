@@ -1,4 +1,4 @@
-# Functional DDD Template
+# Trellis Template
 
 This is a clean architecture Domain-Driven Design (DDD) template that provides a structured foundation for building Web API applications using the functional programming paradigm.
 The template follows the principles of DDD and includes the CQRS (Command Query Responsibility Segregation) pattern to separate write and read operations.
@@ -37,7 +37,7 @@ In this approach, the code is divided into a series of functions that represent 
 Each function either succeeds and moves the code along the success track, or fails and sends the code down the failed track.
 This approach can make error handling more explicit and easier to reason about.
 
-For details look at the package [FunctionalDDD](https://github.com/xavierjohn/FunctionalDDD)
+For details look at the package [Trellis](https://github.com/xavierjohn/Trellis)
 
 ## Sample
 

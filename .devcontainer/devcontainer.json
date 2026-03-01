@@ -1,5 +1,5 @@
 {
-  "name": "Functional DDD ASP Template",
+  "name": "Trellis ASP Template",
   "build": {
     "dockerfile": "Dockerfile"
   },
@@ -20,7 +20,7 @@
         "editorconfig.editorconfig"
       ],
       "settings": {
-        "dotnet.defaultSolution": "FunctionalDddAspTemplate.sln"
+        "dotnet.defaultSolution": "TrellisAspTemplate.slnx"
       }
     }
   },

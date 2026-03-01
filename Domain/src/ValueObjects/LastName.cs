@@ -1,5 +1,5 @@
 ﻿namespace BestWeatherForecast.Domain;
 
-public partial class LastName : RequiredString
+public partial class LastName : RequiredString<LastName>
 {
 }

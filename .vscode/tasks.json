@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/FunctionalDddAspTemplate.sln",
+        "${workspaceFolder}/TrellisAspTemplate.slnx",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary;ForceNoAlign"
       ],
@@ -19,7 +19,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/FunctionalDddAspTemplate.sln",
+        "${workspaceFolder}/TrellisAspTemplate.slnx",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary;ForceNoAlign"
       ],
@@ -43,7 +43,7 @@
       "type": "process",
       "args": [
         "test",
-        "${workspaceFolder}/FunctionalDddAspTemplate.sln"
+        "${workspaceFolder}/TrellisAspTemplate.slnx"
       ],
       "problemMatcher": "$msCompile",
       "group": {

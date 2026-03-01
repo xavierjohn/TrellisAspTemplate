@@ -5,7 +5,7 @@
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
     <PackageReference Include="Azure.Core" />
-    <PackageReference Include="FunctionalDDD.Asp" />
+    <PackageReference Include="Trellis.Asp" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.OpenApi" />
