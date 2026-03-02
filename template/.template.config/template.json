@@ -46,10 +46,7 @@
             "**/.vs/**",
             "**/TestResults/**",
             "**/.git/**",
-            ".template.config/**",
-            "templatepack.csproj",
-            "version.json",
-            "nupkg/**"
+            ".template.config/**"
           ]
         }
       ]

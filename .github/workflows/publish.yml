@@ -26,13 +26,13 @@ jobs:
         setAllVars: true
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore template/TrellisAspTemplate.slnx
 
     - name: Build
-      run: dotnet build --no-restore -c Release
+      run: dotnet build template/TrellisAspTemplate.slnx --no-restore -c Release
 
     - name: Test
-      run: dotnet test --no-build -c Release --filter "Category!=AntiCorruptionLayerTests"
+      run: dotnet test template/TrellisAspTemplate.slnx --no-build -c Release --filter "Category!=AntiCorruptionLayerTests"
 
     - name: Pack template
       run: dotnet pack templatepack.csproj -c Release -o nupkg

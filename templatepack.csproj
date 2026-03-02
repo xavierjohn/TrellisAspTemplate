@@ -23,9 +23,7 @@
 
     <!-- Template packages don't produce assemblies -->
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <ContentTargetFolders>content</ContentTargetFolders>
     <NoDefaultExcludes>true</NoDefaultExcludes>
     <NoWarn>$(NoWarn);NU5128;CS2008</NoWarn>
 
@@ -36,9 +34,16 @@
 
   <!-- Include all template content -->
   <ItemGroup>
-    <Content Include="**\*"
-             Exclude="**\bin\**;**\obj\**;**\.git\**;**\.vs\**;**\TestResults\**;nupkg\**;templatepack.csproj;version.json;**\*.user;**\.DS_Store" />
+    <Content Remove="**\*" />
     <Compile Remove="**\*" />
+    <None Include="template\**\*"
+          Exclude="template\**\bin\**;template\**\obj\**;template\**\.vs\**;template\**\.git\**;template\**\TestResults\**;**\*.user;**\.DS_Store;template\.devcontainer\Dockerfile"
+          Pack="true"
+          PackagePath="content\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Extensionless files need PackagePath as directory (NuGet appends filename) -->
+    <None Include="template\.devcontainer\Dockerfile"
+          Pack="true"
+          PackagePath="content\.devcontainer\" />
     <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
