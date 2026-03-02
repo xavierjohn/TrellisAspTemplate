@@ -1,26 +1,26 @@
-name: Build
+name: Publish to NuGet
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main, release/v** ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  build:
+  publish:
 
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0.x'
-            
+
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0 # depth is needed for nbgv
+
     - uses: dotnet/nbgv@master
       with:
         setAllVars: true
@@ -37,9 +37,5 @@ jobs:
     - name: Pack template
       run: dotnet pack templatepack.csproj -c Release -o nupkg
 
-    - name: Upload NuGet package
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-package
-        path: nupkg/*.nupkg
+    - name: Push to NuGet.org
+      run: dotnet nuget push nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
