@@ -649,8 +649,8 @@ string? GetAttribute(string key)
 ```csharp
 interface IActorProvider { Actor GetCurrentActor(); }
 interface IAuthorize { IReadOnlyList<string> RequiredPermissions { get; } }
-interface IAuthorizeResource<in TResource> { IResult Authorize(Actor actor, TResource resource); }
-interface IResourceLoader<in TMessage, TResource> { Task<Result<TResource>> LoadAsync(TMessage message, CancellationToken ct); }
+interface IAuthorizeResource<TResource> { IResult Authorize(Actor actor, TResource resource); }
+interface IResourceLoader<TMessage, TResource> { Task<Result<TResource>> LoadAsync(TMessage message, CancellationToken ct); }
 abstract class ResourceLoaderById<TMessage, TResource, TId> : IResourceLoader<TMessage, TResource>
 {
     protected abstract TId GetId(TMessage message);
@@ -698,8 +698,6 @@ Customizable via `TrellisAspOptions.MapError<TError>(int statusCode)`.
 ActionResult<T> ToActionResult<T>(this Result<T> result, ControllerBase controller)
 ActionResult<T> ToCreatedAtActionResult<T>(this Result<T> result, ControllerBase controller,
     string actionName, Func<T, object?> routeValues, string? controllerName = null)
-ActionResult<TOut> ToCreatedAtActionResult<TValue, TOut>(this Result<TValue> result, ControllerBase controller,
-    string actionName, Func<TValue, object?> routeValues, Func<TValue, TOut> map, string? controllerName = null)
 // + async variants for Task<Result<T>> and ValueTask<Result<T>>
 // + partial content (206) variant with ContentRangeHeaderValue
 ```
@@ -710,8 +708,6 @@ ActionResult<TOut> ToCreatedAtActionResult<TValue, TOut>(this Result<TValue> res
 IResult ToHttpResult<T>(this Result<T> result, TrellisAspOptions? options = null)
 IResult ToCreatedAtRouteHttpResult<T>(this Result<T> result,
     string routeName, Func<T, RouteValueDictionary> routeValues, TrellisAspOptions? options = null)
-IResult ToCreatedAtRouteHttpResult<TValue, TOut>(this Result<TValue> result,
-    string routeName, Func<TValue, RouteValueDictionary> routeValues, Func<TValue, TOut> map, TrellisAspOptions? options = null)
 // + async variants
 ```
 
@@ -794,7 +790,9 @@ var result = await httpClient.GetAsync($"/api/orders/{id}")
 
 ### Pipeline Order
 
-Exception → Tracing → Logging → Authorization → ResourceAuthorization → Validation
+Exception → Tracing → Logging → Authorization → ResourceAuthorization (actor-only) → Validation
+
+Resource-based authorization with a loaded resource (`IAuthorizeResource<TResource>`) is auto-discovered via `AddResourceAuthorization(Assembly)`, or registered explicitly per-command via `AddResourceAuthorization<TMessage, TResource, TResponse>()` for AOT scenarios.
 
 ### Behaviors
 
@@ -804,7 +802,7 @@ Exception → Tracing → Logging → Authorization → ResourceAuthorization �
 | `TracingBehavior` | `IMessage` | OpenTelemetry Activity span |
 | `LoggingBehavior` | `IMessage` | Structured logging with duration |
 | `AuthorizationBehavior` | `IAuthorize, IMessage` | Checks `HasAllPermissions` → `Error.Forbidden` |
-| `ResourceAuthorizationBehavior<TMessage, TResource, TResponse>` | `IAuthorizeResource<TResource>, IMessage` | Resolves `IResourceLoader` from DI per-request, loads resource, calls `Authorize(actor, resource)` |
+| `ResourceAuthorizationBehavior<,,>` | `IAuthorizeResource<TResource>, IMessage` | Loads resource via `IResourceLoader`, delegates to `message.Authorize(actor, resource)`. Auto-discovered via `AddResourceAuthorization(Assembly)`. |
 | `ValidationBehavior` | `IValidate, IMessage` | Calls `message.Validate()`, short-circuits |
 
 ### IValidate Interface
@@ -818,12 +816,12 @@ interface IValidate { IResult Validate(); }
 ```csharp
 services.AddTrellisBehaviors();
 
-// Resource-based authorization — scan assembly for IAuthorizeResource<T> commands and IResourceLoader implementations
-services.AddResourceAuthorization(typeof(AclAssemblyMarker).Assembly);
+// Recommended: scan-register both IAuthorizeResource<T> behaviors and IResourceLoader<,> implementations
+services.AddResourceAuthorization(typeof(CancelOrderCommand).Assembly);
 
-// Or register explicitly (AOT-safe)
+// OR: explicit per-command registration (AOT-compatible)
 services.AddResourceAuthorization<CancelOrderCommand, Order, Result<Order>>();
-services.AddScoped<IResourceLoader<CancelOrderCommand, Order>, CancelOrderResourceLoader>();
+services.AddResourceLoaders(typeof(CancelOrderResourceLoader).Assembly);
 ```
 
 ---
@@ -972,8 +970,19 @@ IQueryable<T> Where<T>(this IQueryable<T> query, Specification<T> specification)
 // In OnModelCreating or ConfigureConventions
 configurationBuilder.ApplyTrellisConventions(typeof(Order).Assembly);
 // Auto-registers converters for all IScalarValue and RequiredEnum types
-// Auto-maps Money properties as owned entities (Amount decimal + Currency string columns)
+// Auto-maps Money properties as owned types (Amount + Currency columns)
 ```
+
+### Money Property Convention
+
+`Money` properties on entities are automatically mapped as owned types — no `OwnsOne` configuration needed. Column naming convention:
+
+| Property Name | Amount Column | Currency Column | Amount Type | Currency Type |
+|---------------|---------------|-----------------|-------------|---------------|
+| `Price` | `Price` | `PriceCurrency` | `decimal(18,3)` | `nvarchar(3)` |
+| `ShippingCost` | `ShippingCost` | `ShippingCostCurrency` | `decimal(18,3)` | `nvarchar(3)` |
+
+Explicit `OwnsOne` configuration takes precedence over the convention.
 
 ### Maybe\<T\> Property Mapping
 
