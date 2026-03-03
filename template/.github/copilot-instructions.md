@@ -75,14 +75,28 @@ The template provides the complete project structure. Do NOT modify or recreate 
 
 **HTTP file:** The template includes `Api/src/api.http` with sample requests. After implementing the spec, **replace its contents** with requests covering every endpoint in the API — happy-path examples, error cases, and the full resource lifecycle. Use `@variables` for host, api-version, and response-chained IDs (e.g., `{{createCustomer.response.body.id}}`). This file is the living documentation for manual testing and onboarding.
 
+**Environment file:** Complex JSON variables (actors, auth tokens, reusable objects) do NOT work inline in `.http` files. Put them in `Api/src/http-client.env.json` instead:
+```json
+{
+  "dev": {
+    "host": "https://localhost:5001",
+    "apiVersion": "2026-11-12",
+    "adminActor": "{\"Id\":\"admin-1\",\"Permissions\":[\"customers:create\",\"products:create\"]}",
+    "userActor": "{\"Id\":\"user-1\",\"Permissions\":[\"orders:create\",\"orders:read\"]}"
+  }
+}
+```
+The `.http` file then references them as `{{adminActor}}`, `{{host}}`, etc. Only simple scalar `@variables` (strings, numbers, response-chained IDs) belong in the `.http` file itself.
+
 ## Key Conventions
 
 ### Commands and Queries
 
 - Commands receive **value object types** (e.g., `CustomerId`, not `Guid`). Scalar value binding validates at the API layer — handlers never call `TryCreate` on command properties.
 - Use `IValidate` **only** for cross-field or collection validation (e.g., "at least one line item"). Single-field validation is handled by value objects.
-- Use `IAuthorize` for permission-based authorization. Use `IAuthorizeResource` for resource-based authorization (e.g., "only the owner can cancel").
-- **`IAuthorizeResource` timing:** The `Authorize(Actor)` method runs in the pipeline *before* the handler, so the resource hasn't been loaded yet. For ownership checks that require the entity, implement `Authorize` as `Result.Success()` and perform the actual resource-based check inside the handler after loading the entity.
+- Use `IAuthorize` for permission-based authorization. Use `IAuthorizeResource<TResource>` for resource-based authorization (e.g., "only the owner can cancel").
+- **`IAuthorizeResource<TResource>`:** The pipeline loads the resource via an `IResourceLoader<TMessage, TResource>` before calling `Authorize(Actor, TResource)`. The handler receives the entity already authorized — no auth logic in handlers. Register the resource loader as scoped in the Acl layer. Use `ResourceLoaderById<TMessage, TResource, TId>` as a convenience base class for ID-based lookups.
+- **Registration:** Use `services.AddResourceAuthorization(assembly)` in the Acl layer's `DependencyInjection.cs` to scan-register all `IAuthorizeResource<T>` commands and their `IResourceLoader` implementations. Alternatively, register explicitly with `services.AddResourceAuthorization<TMessage, TResource, TResponse>()`.
 - **`Unit` type disambiguation:** Both `Trellis` and `Mediator` define a `Unit` type. In handler return types and ROP chains, always use `Trellis.Unit` (or `default(Trellis.Unit)`). The global `using Trellis;` directive makes the unqualified `Unit` resolve to `Trellis.Unit`, but when both namespaces are imported, qualify explicitly.
 
 ### EF Core
@@ -131,7 +145,7 @@ app.UseScalarValueValidation();
 
 **Application tests:** Mock repository interfaces. Test handler logic, authorization checks, error mapping. Use `Xunit.DependencyInjection` for test DI with a `Startup.cs` that registers Mediator and mock services.
 
-**API integration tests:** Use `WebApplicationFactory<Program>` with SQLite in-memory replacing SQL Server. Test HTTP round-trips, status codes, Problem Details, authorization enforcement. Use `MartinCostello.Logging.XUnit.v3` for test logging. The `Microsoft.EntityFrameworkCore.Sqlite` package belongs **only** in the Api.Tests project — never add it to the Acl project (which must use `SqlServer` only).
+**API integration tests:** Use `WebApplicationFactory<Program>` with SQLite in-memory. Test HTTP round-trips, status codes, Problem Details, authorization enforcement. Use `MartinCostello.Logging.XUnit.v3` for test logging.
 
 **Do NOT** create `GlobalUsings.cs` files in test projects. Global usings come from `build/test.props`.
 

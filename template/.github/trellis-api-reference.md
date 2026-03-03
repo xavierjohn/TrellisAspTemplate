@@ -649,7 +649,13 @@ string? GetAttribute(string key)
 ```csharp
 interface IActorProvider { Actor GetCurrentActor(); }
 interface IAuthorize { IReadOnlyList<string> RequiredPermissions { get; } }
-interface IAuthorizeResource { IResult Authorize(Actor actor); }
+interface IAuthorizeResource<in TResource> { IResult Authorize(Actor actor, TResource resource); }
+interface IResourceLoader<in TMessage, TResource> { Task<Result<TResource>> LoadAsync(TMessage message, CancellationToken ct); }
+abstract class ResourceLoaderById<TMessage, TResource, TId> : IResourceLoader<TMessage, TResource>
+{
+    protected abstract TId GetId(TMessage message);
+    protected abstract Task<Result<TResource>> GetByIdAsync(TId id, CancellationToken ct);
+}
 ```
 
 ## ActorAttributes Constants
@@ -798,7 +804,7 @@ Exception → Tracing → Logging → Authorization → ResourceAuthorization �
 | `TracingBehavior` | `IMessage` | OpenTelemetry Activity span |
 | `LoggingBehavior` | `IMessage` | Structured logging with duration |
 | `AuthorizationBehavior` | `IAuthorize, IMessage` | Checks `HasAllPermissions` → `Error.Forbidden` |
-| `ResourceAuthorizationBehavior` | `IAuthorizeResource, IMessage` | Delegates to `message.Authorize(actor)` |
+| `ResourceAuthorizationBehavior<TMessage, TResource, TResponse>` | `IAuthorizeResource<TResource>, IMessage` | Resolves `IResourceLoader` from DI per-request, loads resource, calls `Authorize(actor, resource)` |
 | `ValidationBehavior` | `IValidate, IMessage` | Calls `message.Validate()`, short-circuits |
 
 ### IValidate Interface
@@ -811,6 +817,13 @@ interface IValidate { IResult Validate(); }
 
 ```csharp
 services.AddTrellisBehaviors();
+
+// Resource-based authorization — scan assembly for IAuthorizeResource<T> commands and IResourceLoader implementations
+services.AddResourceAuthorization(typeof(AclAssemblyMarker).Assembly);
+
+// Or register explicitly (AOT-safe)
+services.AddResourceAuthorization<CancelOrderCommand, Order, Result<Order>>();
+services.AddScoped<IResourceLoader<CancelOrderCommand, Order>, CancelOrderResourceLoader>();
 ```
 
 ---
