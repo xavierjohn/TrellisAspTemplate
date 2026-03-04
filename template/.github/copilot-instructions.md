@@ -8,7 +8,7 @@ This project uses the **Trellis** framework (.NET 10). Trellis combines Railway-
 
 1. **Errors are values, not exceptions.** Use `Result<T>` for expected failures. Never throw for business logic. Never use try/catch in Domain or Application layers.
 2. **Make illegal states unrepresentable.** Every domain concept is a value object with `TryCreate`. If it exists, it's valid.
-3. **No primitive obsession.** No raw `Guid`, `string`, or `int` in domain method signatures. Use typed value objects everywhere.
+3. **No primitive obsession.** No raw `Guid`, `string`, `int`, or `decimal` in domain properties or method signatures. Every property on an Aggregate or Entity must be a typed value object. If the same concept appears in two contexts (e.g., line item quantity vs. stock quantity), create separate types for each.
 4. **Use built-in `Trellis.Primitives` before creating custom value objects.** `EmailAddress`, `PhoneNumber`, `Url`, `Hostname`, `IpAddress`, `Slug`, `CountryCode`, `CurrencyCode`, `LanguageCode`, `Age`, `Percentage`, and `Money` are already provided with full validation, JSON converters, and EF Core support. Only create custom value objects for domain concepts not covered by these.
 5. **Optional values use `Maybe<T>`, never null.** `Maybe<PhoneNumber>`, not `PhoneNumber?`.
 
@@ -100,6 +100,94 @@ The `.http` file then references them as `{{adminActor}}`, `{{host}}`, etc. Only
 - **Registration:** Use `services.AddResourceAuthorization(assembly)` in the Acl layer's `DependencyInjection.cs` to scan-register all `IAuthorizeResource<T>` commands and their `IResourceLoader` implementations. Alternatively, register explicitly with `services.AddResourceAuthorization<TMessage, TResource, TResponse>()`.
 - **`Unit` type disambiguation:** Both `Trellis` and `Mediator` define a `Unit` type. In handler return types and ROP chains, always use `Trellis.Unit` (or `default(Trellis.Unit)`). The global `using Trellis;` directive makes the unqualified `Unit` resolve to `Trellis.Unit`, but when both namespaces are imported, qualify explicitly.
 
+### Handler ROP Pattern
+
+**Use `Bind`/`BindAsync` chains in handlers — not imperative `if`/`return`.** Handlers should compose Result operations using the ROP pipeline, not unwrap results manually.
+
+**Task vs ValueTask overload ambiguity:** Trellis provides `TapAsync`, `BindAsync`, `MapAsync` overloads for both `Task` and `ValueTask`. If the compiler reports "ambiguous invocation," specify the lambda return type explicitly (e.g., `async (Order order) => await ...` or cast to `Func<Order, Task>`).
+
+```csharp
+// ✅ Correct — ROP chain with Bind/BindAsync
+public async ValueTask<Result<OrderDto>> Handle(SubmitOrderCommand command, CancellationToken ct) =>
+    await _orderRepository.GetByIdAsync(command.OrderId, ct)
+        .BindAsync(order => order.Submit())
+        .TapAsync(order => _orderRepository.SaveAsync(order, ct))
+        .MapAsync(OrderDto.From);
+
+// ❌ Wrong — imperative unwrapping
+public async ValueTask<Result<OrderDto>> Handle(SubmitOrderCommand command, CancellationToken ct)
+{
+    var orderResult = await _orderRepository.GetByIdAsync(command.OrderId, ct);
+    if (!orderResult.TryGetValue(out var order))
+    {
+        _ = orderResult.TryGetError(out var error);
+        return error;
+    }
+    var submitResult = order.Submit();
+    if (!submitResult.TryGetValue(out var submitted))
+    {
+        _ = submitResult.TryGetError(out var error);
+        return error;
+    }
+    await _orderRepository.SaveAsync(submitted, ct);
+    return OrderDto.From(submitted);
+}
+```
+
+### Parallel Async Operations
+
+When a handler needs multiple independent async results (e.g., fetching a customer AND products), use `Result.ParallelAsync` + `WhenAllAsync` instead of sequential `await`:
+
+```csharp
+// ✅ Correct — parallel fetches with ParallelAsync
+public async ValueTask<Result<Order>> Handle(CreateDraftOrderCommand command, CancellationToken ct)
+{
+    var (customerTask, productsTask) = Result.ParallelAsync(
+        () => _customerRepository.GetByIdAsync(command.CustomerId, ct),
+        () => _productRepository.GetByIdsAsync(command.ProductIds, ct));
+
+    return await Result.WhenAllAsync(customerTask, productsTask)
+        .BindAsync((customer, products) => Order.TryCreate(customer, products, command.LineItems));
+}
+
+// ❌ Wrong — sequential fetches
+var customer = await _customerRepository.GetByIdAsync(command.CustomerId, ct);
+var products = await _productRepository.GetByIdsAsync(command.ProductIds, ct);
+```
+
+### State Machines (Trellis.Stateless)
+
+Use `Trellis.Stateless` for aggregate state transitions. The `FireResult()` extension returns `Result<TState>` instead of throwing on invalid transitions.
+
+**Lazy initialization required for EF Core.** The third-party `StateMachine<TState, TTrigger>` constructor eagerly invokes its `stateAccessor` function. When EF Core materializes an aggregate via its parameterless constructor, state properties are not yet populated — causing a `NullReferenceException`. Use lazy initialization:
+
+```csharp
+public class Order : Aggregate<OrderId>
+{
+    public OrderStatus Status { get; private set; }
+
+    // ✅ Lazy — defers construction until first use (after EF Core populates properties)
+    private StateMachine<string, string>? _machine;
+    private StateMachine<string, string> Machine => _machine ??= ConfigureStateMachine();
+
+    private StateMachine<string, string> ConfigureStateMachine()
+    {
+        var machine = new StateMachine<string, string>(() => Status.Name, s => Status = OrderStatus.FromName(s));
+        machine.Configure("Draft").Permit("Submit", "Submitted");
+        // ... more transitions
+        return machine;
+    }
+
+    public Result<Order> Submit() =>
+        Machine.FireResult("Submit")
+            .Tap(_ => DomainEvents.Add(new OrderSubmittedEvent(Id)))
+            .Map(_ => this);
+
+    // ❌ Wrong — eager construction crashes when EF Core calls parameterless constructor
+    // private readonly StateMachine<string, string> _machine = new(...);
+}
+```
+
 ### EF Core
 
 - **NEVER write `HasConversion()`.** Call `ApplyTrellisConventions` in `ConfigureConventions` — it handles all scalar Trellis value objects and `Money` properties automatically.
@@ -108,6 +196,8 @@ The `.http` file then references them as `{{adminActor}}`, `{{host}}`, etc. Only
 - Use `FirstOrDefaultMaybeAsync` for optional lookups, `FirstOrDefaultResultAsync` for required lookups.
 - Use `.Where(specification)` for specification queries.
 - **`Maybe<T>` properties** require the backing-field pattern with `MaybeProperty` in `OnModelCreating`. Use `WhereNone`, `WhereHasValue`, `WhereEquals` for LINQ queries on those properties. See §12 in `trellis-api-reference.md`.
+- **Entity configurations:** Use `IEntityTypeConfiguration<T>` per entity in the Acl layer — one file per aggregate/entity (e.g., `OrderConfiguration.cs`, `CustomerConfiguration.cs`). Register them with `ApplyConfigurationsFromAssembly` in `OnModelCreating`. Do NOT inline configuration in `DbContext.OnModelCreating`.
+- **Migrations:** After implementing all entities and configurations, run `dotnet ef migrations add InitialCreate -p Acl/src -s Api/src` to generate the initial migration. Do not rely on `EnsureCreated()` for anything beyond a quick prototype.
 
 ### MVC Controllers
 
