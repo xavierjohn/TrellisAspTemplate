@@ -1,1 +1,1 @@
-dotnet test -l "console;verbosity=normal"
+dotnet test template\TrellisAspTemplate.slnx

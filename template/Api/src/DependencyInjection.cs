@@ -1,0 +1,84 @@
+﻿namespace BestWeatherForecast.Api;
+
+using BestWeatherForecast.Api.Middleware;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using ServiceLevelIndicators;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Trellis.Asp;
+
+internal static class DependencyInjection
+{
+    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    {
+        services.ConfigureOpenTelemetry();
+        services.ConfigureServiceLevelIndicators();
+        services.AddProblemDetails();
+        services.AddControllers().AddScalarValueValidation();
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+        services.AddSwaggerGen(
+            options =>
+            {
+                options.OperationFilter<AddApiVersionMetadata>();
+                options.OperationFilter<AddTraceParentParameter>();
+
+                var fileName = typeof(Program).Assembly.GetName().Name + ".xml";
+                var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
+
+                // integrate xml comments
+                options.IncludeXmlComments(filePath);
+            });
+        services.AddApiVersioning()
+                .AddMvc()
+                .AddApiExplorer();
+        services.AddScoped<ErrorHandlingMiddleware>();
+        return services;
+    }
+
+    private static IServiceCollection ConfigureOpenTelemetry(this IServiceCollection services)
+    {
+        static void configureResource(ResourceBuilder r) => r.AddService(
+            serviceName: "BestWeatherForecastService",
+            serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown");
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(configureResource)
+            .WithMetrics(builder =>
+            {
+                builder.AddAspNetCoreInstrumentation();
+                builder.AddMeter(
+                    ApiMeters.MeterName,
+                    "Microsoft.AspNetCore.Hosting",
+                    "Microsoft.AspNetCore.Server.Kestrel",
+                    "System.Net.Http");
+                builder.AddOtlpExporter();
+            })
+            .WithTracing(builder =>
+            {
+                builder.AddAspNetCoreInstrumentation();
+                builder.AddResultsInstrumentation();
+                builder.AddPrimitiveValueObjectInstrumentation();
+                builder.AddOtlpExporter();
+            });
+
+        services.AddSingleton<ApiMeters>();
+        return services;
+    }
+
+    private static IServiceCollection ConfigureServiceLevelIndicators(this IServiceCollection services)
+    {
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<ServiceLevelIndicatorOptions>, ConfigureServiceLevelIndicatorOptions>());
+        services.AddServiceLevelIndicator(options =>
+        {
+            options.LocationId = ServiceLevelIndicator.CreateLocationId("public", "westus3");
+        })
+        .AddMvc()
+        .AddApiVersion();
+
+        return services;
+    }
+}

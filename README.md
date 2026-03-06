@@ -1,85 +1,72 @@
-# Trellis Template
+# Trellis ASP.NET Service Template
 
-This is a clean architecture Domain-Driven Design (DDD) template that provides a structured foundation for building Web API applications using the functional programming paradigm.
-The template follows the principles of DDD and includes the CQRS (Command Query Responsibility Segregation) pattern to separate write and read operations.
-
-## Features
-
-### Layered Architecture
-
-The template promotes a layered architecture approach, consisting of the API layer, application layer, domain layer, and anti corruption layer. This separation of concerns allows for modular and testable code.
-
-#### Domain-Driven Design
-
-The template emphasizes the importance of capturing the business domain by implementing domain models and applying business rules within the domain layer. It promotes the use of a Ubiquitous Language and aggregates to model complex business concepts.
-
-#### CQRS Pattern
-
-The template leverages the CQRS pattern to separate write (command) operations from read (query) operations. This promotes scalability, performance optimization, and a clear separation of concerns between the different types of operations.
-
-#### Anti-Corruption Layer (ACL)
-
-The Anti-Corruption Layer acts as a bridge between the domain layer and external systems. The ACL helps to maintain the integrity and consistency of the domain model when interacting with external dependencies.
-
-### Service Level Indicators
-
-All the API methods will emit metrics with duration and status code to help monitor the service.
-
-To view the metrics and traces locally run the docker container. 
-Metrics can be viewed in [Prometheus](http://localhost:9090) and traces in [Zipkin](http://localhost:9411/zipkin/)
-
-For details look at the package [ServiceLevelIndicators](https://github.com/xavierjohn/ServiceLevelIndicators)
-
-### Railway Oriented Programming
-
-Railway-oriented programming is an approach to error handling that is based on the idea of a railway track.
-In this approach, the code is divided into a series of functions that represent different steps along the railway track.
-Each function either succeeds and moves the code along the success track, or fails and sends the code down the failed track.
-This approach can make error handling more explicit and easier to reason about.
-
-For details look at the package [Trellis](https://github.com/xavierjohn/Trellis)
-
-## Sample
-
-Here is a more elaborate sample code [BuberDinner](https://github.com/xavierjohn/BuberDinner)
-
-## Writing High Quality Services
-
-[![Watch the video](https://img.youtube.com/vi/6_1CAgskxfM/hqdefault.jpg)](https://www.youtube.com/embed/6_1CAgskxfM)
+A `dotnet new` template for creating ASP.NET services using the [Trellis](https://github.com/xavierjohn/Trellis) framework with Railway-Oriented Programming (ROP) and Domain-Driven Design (DDD).
 
 ## Getting Started
 
-To get started with this template, All you need to do is download the repository to your local development environment, rename it to your project and use it. This template comes with all layers already implemented along with the Unit Tests in place.
-This is not a Visual Studio project template.
+### Install the template
 
-## Lets talk a little bit more about the layers implemented in the Template
+```powershell
+dotnet new install Trellis.AspTemplate
+```
 
-### Domain Layer
+### Create a new service
 
-The domain layer represents the core of the system. It consists of business models identified in the Ubiquitous Language of the domain. The domain layer uses aggregates, which are cohesive units of business logic and data. Aggregates enforce consistency boundaries and encapsulate the domain's behavior and rules. The domain layer focuses on capturing the essential concepts of the business and expressing them in a domain-specific language.
+```powershell
+dotnet new trellis-asp -n MyService --authorName "Your Name"
+```
 
-### Application Layer
+This creates a `MyService/` directory with the full solution structure ready to build and run.
 
-The application layer, part of the domain, implements the business logic and uses abstractions to communicate with external systems. It follows the CQRS pattern, separating write operations (commands) from read operations (queries). The application layer processes commands, applying business rules and modifying the domain state. It also dispatches queries to retrieve data from read models. The application layer talks to external systems through abstractions, ensuring a decoupled and testable design.
+### Build and test
 
-### Anti-Corruption Layer
+```powershell
+cd MyService
+dotnet build
+dotnet test
+```
 
-The Anti-Corruption Layer (ACL), which shields the domain layer from the complexities of external systems. The ACL translates and adapts external interfaces and data formats to match the domain's language and concepts. The infrastructure layer also encompasses components such as databases, external services, and other infrastructure-related code required for the system's operation. Infrastructure layer implements the abstractions defined in the application layer.
+### Run the API
 
-### API Layer
+```powershell
+dotnet run --project Api/src
+```
 
-The API layer acts as the contract between the external world and the domain. It defines the communication endpoints and handles the serialization and deserialization of data. The API layer provides a standardized way for clients to send commands and queries to the system, adhering to the domain's language and concepts.
+## What's Included
 
-In summary, the API layer acts as the contract between the domain and the external world, the application layer implements the business logic using abstractions and follows the CQRS pattern, the domain layer represents the core business models and applies business rules, and the infrastructure layer is the ACL that translates the domain abstractions to external systems. This layered architecture with the CQRS pattern and the ACL helps separate concerns, maintain a clean design, and enable functional Domain-Driven Design practices.
+### Architecture
 
-## Convention over configuration for resource names
+The template provides a layered architecture following DDD and CQRS principles:
 
-When deploying a service across multiple regions and environments, using convention over configuration for resource names can help prevent configuration errors.
-By setting two configuration parameters, `RegionShortName` and `Environment`, resource names can be determined using `EnvironmentOptions` and its extensions.
+| Layer | Project | Purpose |
+|-------|---------|---------|
+| **Domain** | `Domain/` | Aggregates, entities, value objects — pure business logic with zero external dependencies |
+| **Application** | `Application/` | Commands, queries, handlers — orchestrates domain logic via CQRS (Mediator) |
+| **Anti-Corruption Layer** | `Acl/` | Repository implementations, external service adapters, EF Core — shields the domain from infrastructure |
+| **API** | `Api/` | Controllers, DTOs, middleware, composition root — thin HTTP layer |
 
-The `Region` value can be used for the resource group name and in `LocationId` parameter of the Service Level Indicators.
+Each layer has `src/` and `tests/` projects.
 
-Setting these values through configuration files or environment variables can simplify the process and reduce the need for numerous resource-specific settings in the configuration files.
+### Key Features
+
+- **Railway-Oriented Programming** — Errors are values (`Result<T>`), not exceptions. Business logic flows through composable pipelines using `Bind`, `Map`, `Ensure`, and `Tap`.
+- **Domain-Driven Design** — Value objects with `TryCreate` validation, aggregates with domain events, specifications for composable queries.
+- **CQRS** — Commands and queries separated via [Mediator](https://github.com/martinothamar/Mediator) source generator.
+- **Service Level Indicators** — All API methods emit duration and status code metrics via [ServiceLevelIndicators](https://github.com/xavierjohn/ServiceLevelIndicators).
+- **OpenTelemetry** — Traces and metrics configured out of the box. Use the included [Aspire Dashboard](DockerOpenTelemetry/README.md) for local observability.
+- **API Versioning** — Date-based versioning with `Asp.Versioning`.
+- **Copilot Instructions** — `.github/copilot-instructions.md` and `.github/trellis-api-reference.md` guide AI assistants to follow Trellis patterns.
+
+### Template Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `-n` / `--name` | Service name (used for solution file, namespaces, assembly names) | `MyService` |
+| `--authorName` | Author name in `Directory.Build.props` | `Your Name` |
+
+## Convention over Configuration for Resource Names
+
+When deploying across multiple regions and environments, set `RegionShortName` and `Environment` to derive resource names automatically via `EnvironmentOptions`:
 
 ```json
 {
@@ -87,6 +74,6 @@ Setting these values through configuration files or environment variables can si
     "Environment": "test",
     "Region": "westus2",
     "RegionShortName": "usw2"
-  },
+  }
 }
 ```

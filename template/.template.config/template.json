@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Trellis",
+  "classifications": ["Web", "API", "Trellis", "DDD", "ROP"],
+  "identity": "Trellis.Asp.Template",
+  "name": "Trellis ASP.NET Service",
+  "shortName": "trellis-asp",
+  "description": "A multi-project ASP.NET service template using the Trellis framework with Railway-Oriented Programming and Domain-Driven Design.",
+  "sourceName": "TrellisAspTemplate",
+  "preferNameDirectory": true,
+  "defaultName": "MyService",
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "symbols": {
+    "serviceName": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "ValueWithoutSpaces",
+      "replaces": "BestWeatherForecast",
+      "description": "Derived from -n parameter. Used as namespace prefix (RootNamespace/AssemblyName)."
+    },
+    "authorName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Author name for the project (appears in Directory.Build.props <Authors>)",
+      "defaultValue": "Your Name",
+      "replaces": "Xavier John"
+    }
+  },
+  "forms": {
+    "ValueWithoutSpaces": {
+      "identifier": "replace",
+      "pattern": " ",
+      "replacement": ""
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**",
+            "**/.vs/**",
+            "**/TestResults/**",
+            "**/.git/**",
+            ".template.config/**"
+          ]
+        }
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "TrellisAspTemplate.slnx"
+    }
+  ],
+  "postActions": [
+    {
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "condition": "true",
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "continueOnError": true
+    }
+  ]
+}

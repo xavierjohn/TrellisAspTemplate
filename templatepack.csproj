@@ -1,0 +1,56 @@
+<Project>
+
+  <!-- Must be set BEFORE Sdk import to prevent Directory.Build.props from being loaded -->
+  <PropertyGroup>
+    <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
+    <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
+    <ImportDirectoryPackagesProps>false</ImportDirectoryPackagesProps>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageId>Trellis.AspTemplate</PackageId>
+    <Title>Trellis ASP.NET Service Template</Title>
+    <Description>A dotnet new template for creating ASP.NET services using the Trellis framework with Railway-Oriented Programming (ROP) and Domain-Driven Design (DDD). Includes solution structure, build system, test infrastructure, copilot instructions, and API reference.</Description>
+    <Authors>Xavier John</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/xavierjohn/TrellisAspTemplate</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/xavierjohn/TrellisAspTemplate</RepositoryUrl>
+    <PackageTags>dotnet-new;template;trellis;rop;ddd;aspnet;api;railway-oriented-programming;domain-driven-design</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Template packages don't produce assemblies -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <NoWarn>$(NoWarn);NU5128;CS2008</NoWarn>
+
+    <!-- Suppress build -->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <!-- Include all template content -->
+  <ItemGroup>
+    <Content Remove="**\*" />
+    <Compile Remove="**\*" />
+    <None Include="template\**\*"
+          Exclude="template\**\bin\**;template\**\obj\**;template\**\.vs\**;template\**\.git\**;template\**\TestResults\**;**\*.user;**\.DS_Store;template\.devcontainer\Dockerfile"
+          Pack="true"
+          PackagePath="content\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Extensionless files need PackagePath as directory (NuGet appends filename) -->
+    <None Include="template\.devcontainer\Dockerfile"
+          Pack="true"
+          PackagePath="content\.devcontainer\" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" PrivateAssets="all" />
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+</Project>
