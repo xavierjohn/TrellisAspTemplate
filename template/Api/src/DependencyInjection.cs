@@ -8,7 +8,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using ServiceLevelIndicators;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Scalar.AspNetCore;
 using Trellis.Asp;
 
 internal static class DependencyInjection
@@ -19,22 +19,18 @@ internal static class DependencyInjection
         services.ConfigureServiceLevelIndicators();
         services.AddProblemDetails();
         services.AddControllers().AddScalarValueValidation();
-        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-        services.AddSwaggerGen(
-            options =>
-            {
-                options.OperationFilter<AddApiVersionMetadata>();
-                options.OperationFilter<AddTraceParentParameter>();
-
-                var fileName = typeof(Program).Assembly.GetName().Name + ".xml";
-                var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
-
-                // integrate xml comments
-                options.IncludeXmlComments(filePath);
-            });
         services.AddApiVersioning()
                 .AddMvc()
-                .AddApiExplorer();
+                .AddApiExplorer()
+                .AddOpenApi(options => options.Document.AddScalarTransformers());
+
+        // Register OpenAPI keyed services in the standard DI container.
+        // Asp.Versioning.OpenApi's WithDocumentPerVersion() uses an internal KeyedServiceContainer
+        // whose fallback path throws when a key isn't found (preview bug). Registering documents
+        // here lets MapOpenApi() resolve directly from the standard DI container instead.
+        // Add one call per API version; the versioning PostConfigure adds per-version transformers.
+        services.AddOpenApi("2023-06-06");
+
         services.AddScoped<ErrorHandlingMiddleware>();
         return services;
     }
